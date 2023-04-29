@@ -1,1 +1,1 @@
-print("xd c mamo ")
+print("init test  ")
