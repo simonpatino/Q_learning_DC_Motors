@@ -1,0 +1,1 @@
+print("xd c mamo ")
