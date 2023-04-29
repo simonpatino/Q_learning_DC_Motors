@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "Q_learning.ino",
+    "port": "/dev/tty.usbmodem14101"
+}
