@@ -1,6 +1,6 @@
 import serial 
 import numpy as np
-
+import time
 # Define the Q-learning parameters
 
 goal= 100   #  velocity neccesary to be succesful 
@@ -19,6 +19,8 @@ q_table= np.zeros((len(states),len(actions)))
 
 state_actual=0
 
+ser = serial.Serial('/dev/cu.usbmodem14101', 9600)  # Replace 'COM3' with the appropriate port and 9600 with the baud rate used by your Arduino
+
 def epsilon_policy(state_actual):
 
     if np.random.uniform(0,1) < epsilon :
@@ -33,7 +35,6 @@ def epsilon_policy(state_actual):
         write_a(do)
         result= get_encoder_value()
        
-
     return do, result
 
 def get_reward(result):
@@ -43,10 +44,9 @@ def get_reward(result):
 
         return reward
 
-    
 def get_encoder_value():
     # Open the serial port
-    ser = serial.Serial('/dev/cu.usbmodem14101', 115200)  # Replace 'COM1' with the name of your serial port
+    ser = serial.Serial('/dev/cu.usbmodem14101', 9600)  # Replace 'COM1' with the name of your serial port
     # Wait for the encoder value to be available
     while ser.in_waiting == 0:
         pass
@@ -58,15 +58,27 @@ def get_encoder_value():
     return encoder_value
 
 def write_a(number):
-    ser = serial.Serial('/dev/cu.usbmodem14101',  9600)  
-    message = str(number)+"\r"
-    message = str(number).encode() 
-    ser.write(message)
-    ser.close()
-    return message
+    # ser = serial.Serial('/dev/cu.usbmodem14101', 9600)  
+    # message = [str(number)]
+    # message = [str(number).encode()]
+    # ser.write(message)
+    # ser.close()
 
-def q_learning(reward):
-     
+   
+    # Wait for the Arduino to initialize
+    time.sleep(2)
+
+    # Send messages to Arduino
+    messages = [str(number)]
+    for message in messages:
+        ser.write(message.encode())
+        ser.write(b'\n')  # Add a newline character as a delimiter (optional)
+        time.sleep(0.1)  # Delay between sending messages
+
+    # Close the serial port
+    ser.close()
+    
+def q_learning():
      
      do, result = epsilon_policy(state_actual)
      reward = get_reward()
@@ -86,5 +98,4 @@ def q_learning(reward):
 
 #    write_a("ON\r")
    
-
-print(write_a("ON"))
+write_a("1")

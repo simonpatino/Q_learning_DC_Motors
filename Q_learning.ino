@@ -35,13 +35,15 @@ float velocity2;
     velocity2 = velocity ;
   }
 
-  Serial.println((velocity2*60)/(12*64));
+  //Serial.println((velocity2*60)/(12*64));
 
   
   if ( Serial.available() > 0) {
     
-    String data_fc = Serial.readStringUntil("\n");
+    String data_fc = Serial.readStringUntil("\r");
     data_fc.trim();
+
+    Serial.println(data_fc);
 
 
     if(data_fc =="1"){
