@@ -2,6 +2,7 @@
 #define ENCA_ONE A0
 #define ENCA_TWO 2
 #include <util/atomic.h>
+#include <math.h>
 
 AF_DCMotor motor(4);
 
@@ -11,11 +12,12 @@ volatile long prevT = 0;
 volatile int pos_i = 0;
 
 
+
 void setup() {
 
   //
-  motor.setSpeed(255);
-  motor.run(RELEASE);
+  motor.setSpeed(0);
+  motor.run(FORWARD);
   //
   pinMode(INPUT, ENCA_ONE);
   pinMode( INPUT, ENCA_TWO);
@@ -34,33 +36,41 @@ float velocity2;
     
     velocity2 = velocity ;
   }
+int vel_to_send;
+  vel_to_send=  round((velocity2*60)/(12*64)); 
+Serial.println(vel_to_send);
 
-  //Serial.println((velocity2*60)/(12*64));
-
-  
-  if ( Serial.available() > 0) {
+delay(200);
+  if (Serial.available() > 0) {
     
     String data_fc = Serial.readStringUntil("\r");
     data_fc.trim();
 
-    Serial.println(data_fc);
+    //Serial.println(data_fc.toInt());
 
 
-    if(data_fc =="1"){
+    //set_velocity(data_fc.toInt()) ;
 
-    forward();
-    }
+    motor.setSpeed(data_fc.toInt());
+    
+    //if(data_fc =="1"){
 
-    if(data_fc =="0"){
-    v_zero();  
-      } 
+    //forward();
+    //}
 
-    if(data_fc =="-1")
+    //if(data_fc =="0"){
+    //v_zero();  
+    //  } 
 
-    backward();
+    //if(data_fc =="-1"){
 
+    //backward();
+    //}
 
    }
+
+
+
 
   
 }
