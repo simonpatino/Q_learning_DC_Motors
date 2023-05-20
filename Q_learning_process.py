@@ -1,3 +1,6 @@
+
+#PRUEBA DESTRUCIVA 
+
 import serial 
 import numpy as np
 import time
@@ -6,11 +9,11 @@ import time
 
 goal= 100   #  velocity neccesary to be succesful 
  
-alpha = 0.8 # Learning rate
+alpha = 0.85 # Learning rate
 
-gamma = 1  # Discount factor
+gamma = 0.95  # Discount factor
 
-epsilon = 0.2  # Exploration rate
+epsilon = 0.1  # Exploration rate
 
 #states= list(range(-170,171)) # All posible values sent from the encoder 
 
@@ -18,40 +21,67 @@ states = 255
 
 #actions = [-1, 0, 1] # -1 ----> back , 0 ----> do nothing , ]
 
-actions = list(range(0,256))
+#actions = list(range(0,256))
 
-q_table= np.zeros((1,256))  #q_table= np.zeros((len(states),len(actions)))
+actions = [0,1]
 
-state_actual = 0
+q_table= np.zeros((256,2))  #q_table= np.zeros((len(states),len(actions)))
 
-goal = 80 #RPM
+state_actual = 70
+
+goal = 105 #RPM
 
 ser = serial.Serial('/dev/cu.usbmodem14101', 9600)  # Replace 'COM3' with the appropriate port and 9600 with the baud rate used by your Arduino
+
+a = 0
 
 def epsilon_policy():
 
     if np.random.uniform(0,1) < epsilon :
         do = np.random.choice(actions)
         #perform action
-        write_a(do)
-        time.sleep(0.8)
+        if state_actual != 69:
+            if do == 0:
+                write_a(state_actual +1)
+                time.sleep(0.9)
+                new_state= state_actual +1
+            else:
+                write_a(state_actual -1)  
+                time.sleep(0.9)
+                new_state= state_actual -1
+
+        else:
+            new_state= state_actual + 1
+
         result= get_encoder_value()
-      
+            
     else:
-        do = actions[np.argmax(q_table)]
+
+        do = actions[np.argmax(q_table[state_actual])]
+
+        if state_actual != 69:
+            if do == 0:
+                write_a(state_actual +1)
+                time.sleep(0.9)
+                new_state= state_actual +1
+            else:
+                write_a(state_actual -1)
+                time.sleep(0.9)
+                new_state= state_actual -1
+        else: 
+            new_state= state_actual +1 
         #perfom action
-        write_a(do)
-        time.sleep(0.9)
+        
+        
         result= get_encoder_value()
        
-    return do, result 
+    return do, result ,new_state
 
 def get_reward(result):
         
-        global state_actual
-        reward = 1/(goal - result)
-        state_actual = result 
-        return reward
+    reward = -abs(goal - result)  
+        
+    return reward
 
 def get_encoder_value():
   
@@ -59,12 +89,14 @@ def get_encoder_value():
             
     dato = puerto_serie.readline().strip() # leer datos del puerto serie
         
-    a= 1
+    global a
+
     try:
         a = (int(float(dato.decode("latin1"))))
+        
     except ValueError:
          None
-    return  a
+    return  a 
     
 def write_a(number):
 
@@ -84,16 +116,18 @@ def write_a(number):
     
 def q_learning(evaluar):
      
-     do, result = epsilon_policy()
+     do, result, new_state = epsilon_policy()
     
      reward = get_reward(result)
 
      #q_table[state_actual,do] =  q_table[state_actual,do] + alpha*(reward) - (alpha * q_table[state_actual,do]) 
 
-     q_table[0,do] =  q_table[0,do] + alpha*(reward) - (alpha * q_table[0,do]) #+ gamma*alpha*
+     q_table[state_actual,do] =  q_table[state_actual,do] + alpha*(reward) - (alpha * q_table[state_actual,do]) + gamma*alpha*np.max(q_table[new_state])
 
-
-     return q_table , do
+     
+     
+     
+     return q_table , do , result , new_state
      #new_state = current_state
 
 # while True:
@@ -103,11 +137,16 @@ def q_learning(evaluar):
      
 while True:
 
-    tab ,dop= q_learning(state_actual)
+    q_table ,do, result , new_state  = q_learning(state_actual)
     
-    #print(state_actual)
+    state_actual = new_state 
+   
 
-    print(tab  ,dop )
-     
-#get_encoder_value()
+   
+
+
+    print(q_table  ,do,result, state_actual )
+    
+    #print(get_encoder_value())
+#
 
