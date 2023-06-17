@@ -188,7 +188,7 @@ def animate(i, dataList,hola):
                                                         
 fig = plt.figure()                                      # Create Matplotlib plots fig is the 'higher level' plot window
 ax = fig.add_subplot(111)                               # Add subplot to main fig window
-ax.axhline(y=105, color='r', linestyle='--')
+ax.axhline(y=goal, color='r', linestyle='--')
                        # Establish Serial object with COM port and BAUD rate to match Arduino Port/rate
                                            # Time delay for Arduino Serial initialization 
 
