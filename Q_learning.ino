@@ -20,7 +20,7 @@ void setup() {
   motor.run(FORWARD);
   //
   pinMode(INPUT, ENCA_ONE);
-  pinMode( INPUT, ENCA_TWO);
+  pinMode( INPUT, ENCA_TWO);//
   attachInterrupt(digitalPinToInterrupt(ENCA_TWO), readEncoder, RISING);
   //
   Serial.begin(9600);

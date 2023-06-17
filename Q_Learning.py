@@ -5,17 +5,15 @@ import matplotlib.animation as animation
 import numpy as np
 import time
 
-
-
 # Define the Q-learning parameters
 
-goal= 80   #  velocity neccesary to be succesful 
+#goal= 80   #  velocity neccesary to be succesful 
  
-alpha = 0.3 # Learning rate
+alpha = 0.45 # Learning rate
 
 gamma = 0.9  # Discount factor
 
-epsilon = 0.1  # Exploration rate
+epsilon = 0.2  # Exploration rate
 
 #states= list(range(-170,171)) # All posible values sent from the encoder 
 
@@ -31,22 +29,22 @@ q_table= np.zeros((256,3))  #q_table= np.zeros((len(states),len(actions)))
 
 state_actual = 70
 
-goal = 105 #RPM
+goal = 100 #RPM
 
 ser = serial.Serial('/dev/cu.usbmodem14101', 9600)  # Replace 'COM3' with the appropriate port and 9600 with the baud rate used by your Arduino
 
-a = 0
+a = 0 
 
 def epsilon_policy():
 
     if np.random.uniform(0,1) < epsilon :
         do = np.random.choice(actions)
         #perform action
-        if state_actual != 68:
+        if state_actual != 67:
             if do == 0:
-                write_a(state_actual +2)
+                write_a(state_actual +3)
                 time.sleep(0.9)
-                new_state= state_actual +2
+                new_state= state_actual +3
 
             elif do == 2:
                 write_a(state_actual )
@@ -54,12 +52,12 @@ def epsilon_policy():
                 new_state= state_actual 
 
             else:
-                write_a(state_actual -2)  
+                write_a(state_actual -3)  
                 time.sleep(0.9)
-                new_state= state_actual -2
+                new_state= state_actual -3
 
         else:
-            new_state= state_actual + 2
+            new_state= state_actual + 3
 
         result= get_encoder_value()
             
@@ -67,11 +65,11 @@ def epsilon_policy():
 
         do = actions[np.argmax(q_table[state_actual])]
 
-        if state_actual != 68:
+        if state_actual != 67:
             if do == 0:
-                write_a(state_actual +2)
+                write_a(state_actual +3)
                 time.sleep(0.9)
-                new_state= state_actual +2
+                new_state= state_actual +3
 
             elif do == 2:
                 write_a(state_actual )
@@ -79,11 +77,11 @@ def epsilon_policy():
                 new_state= state_actual 
 
             else:
-                write_a(state_actual -2)
+                write_a(state_actual -3)
                 time.sleep(0.9)
-                new_state= state_actual -2
+                new_state= state_actual -3
         else: 
-            new_state= state_actual +2 
+            new_state= state_actual +3 
         #perfom action
         
         
